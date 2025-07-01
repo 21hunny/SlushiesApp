@@ -9,11 +9,28 @@ class ConfirmPage extends StatelessWidget {
     final String drink = args["drink"];
     final String machine = args["machine"];
 
+    // Example image based on drink name
+    String getDrinkImage(String drinkName) {
+      if (drinkName.contains("Mango")) {
+        return "assets/images/mango.jpg";
+      } else if (drinkName.contains("Pineapple")) {
+        return "assets/images/pinapple.jpg";
+      } else if (drinkName.contains("Strawberry")) {
+        return "assets/images/strawberry.jpg";
+      } else {
+        return "assets/images/default_drink.jpg"; // Fallback image
+      }
+    }
+
     return Scaffold(
-      backgroundColor: Colors.lightBlue.shade50,
+      backgroundColor: const Color(0xFFFFE4F2), // Light pink background
       appBar: AppBar(
-        backgroundColor: Colors.deepOrange.shade700,
-        title: const Text("Confirm Order"),
+        backgroundColor: const Color(0xFF001F54), // Deep blue AppBar
+        iconTheme: const IconThemeData(color: Colors.white), // White back arrow
+        title: const Text(
+          "Confirm Order",
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
         elevation: 4,
       ),
@@ -21,32 +38,45 @@ class ConfirmPage extends StatelessWidget {
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Drink + Machine Info Card
             Card(
-              elevation: 5,
+              color: Colors.white,
+              elevation: 6,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Icon(Icons.local_drink, size: 60, color: Colors.orange),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.asset(
+                        getDrinkImage(drink),
+                        width: 120,
+                        height: 120,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       "You're about to order:",
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange.shade800,
-                          ),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF4B0082), // Deep purple text
+                      ),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       "Drink: $drink",
-                      style: const TextStyle(fontSize: 18),
+                      style: const TextStyle(fontSize: 16, color: Colors.pinkAccent),
                     ),
+                    const SizedBox(height: 4),
                     Text(
                       "Machine: $machine",
-                      style: const TextStyle(fontSize: 18),
+                      style: const TextStyle(fontSize: 16, color: Color(0xFF001F54)),
                     ),
                   ],
                 ),
@@ -58,12 +88,13 @@ class ConfirmPage extends StatelessWidget {
             // Confirm Button
             ElevatedButton.icon(
               onPressed: () {
-                Navigator.pushNamed(context, "/status", arguments: machine);
+                Navigator.pushNamed(context, '/payment');
+
               },
-              icon: const Icon(Icons.check_circle_outline),
+              icon: const Icon(Icons.check_circle_outline, color: Colors.white),
               label: const Text("Confirm & Start"),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 11, 177, 33),
+                backgroundColor: Colors.pinkAccent,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),

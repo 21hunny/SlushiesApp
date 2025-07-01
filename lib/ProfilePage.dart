@@ -10,40 +10,48 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _emailController = TextEditingController(text: "admin@slushies.com");
   final TextEditingController _passwordController = TextEditingController();
-
   bool _obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightBlue.shade50,
+      backgroundColor: const Color(0xFFFFE4F2), // Same pink shade as HomePage
       appBar: AppBar(
-        title: const Text("Your Profile"),
+        backgroundColor: const Color(0xFF001F54), // Deep blue like HomePage
+        iconTheme: const IconThemeData(color: Colors.white), // White back arrow
+        title: const Text(
+          "Your Profile",
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.deepOrange.shade700,
         elevation: 4,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
+            // Profile Image
             const CircleAvatar(
-              radius: 50,
-              backgroundColor: Colors.orange,
-              child: Icon(Icons.person, size: 50, color: Colors.white),
+              radius: 55,
+              backgroundImage: AssetImage('assets/images/user.jpg'), // Your custom admin photo here
+              backgroundColor: Colors.transparent,
             ),
-            const SizedBox(height: 16),
-            Text(
-              "Admin User",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.orange.shade800,
-                    fontWeight: FontWeight.bold,
-                  ),
+            const SizedBox(height: 12),
+
+            // Username Text
+            const Text(
+              "User",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF4B0082), // Deep purple text (matches drinks title color)
+              ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 28),
 
             // Editable Info Card
             Card(
+              color: Colors.white,
               elevation: 5,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
@@ -55,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       controller: _emailController,
                       decoration: InputDecoration(
                         labelText: "Email",
-                        prefixIcon: const Icon(Icons.email),
+                        prefixIcon: const Icon(Icons.email, color: Color.fromARGB(255, 173, 113, 173)),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
@@ -67,10 +75,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         labelText: "New Password",
-                        prefixIcon: const Icon(Icons.lock),
+                        prefixIcon: const Icon(Icons.lock, color: Color.fromARGB(255, 173, 113, 173)),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                            color: Colors.pinkAccent,
                           ),
                           onPressed: () {
                             setState(() {
@@ -83,18 +92,16 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Save Changes Button
                     ElevatedButton.icon(
                       onPressed: () {
-                        // Add Firebase Auth logic here if needed
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text("Profile updated successfully!")),
                         );
                       },
-                      icon: const Icon(Icons.save),
+                      icon: const Icon(Icons.save, color: Colors.white),
                       label: const Text("Save Changes"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 11, 177, 33),
+                        backgroundColor: const Color.fromARGB(255, 34, 177, 29),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -108,12 +115,29 @@ class _ProfilePageState extends State<ProfilePage> {
 
             const Spacer(),
 
+            // Go to Home Button
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false);
+              },
+              icon: const Icon(Icons.home, color: Colors.white),
+              label: const Text("Go to Home"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF001F54), // Deep blue
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                elevation: 4,
+              ),
+            ),
+            const SizedBox(height: 10),
+
             // Log Out Button
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
               },
-              icon: const Icon(Icons.logout),
+              icon: const Icon(Icons.logout, color: Colors.white),
               label: const Text("Log Out"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red.shade600,

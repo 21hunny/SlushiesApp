@@ -1,15 +1,41 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 
-class StatusPage extends StatelessWidget {
+class StatusPage extends StatefulWidget {
   const StatusPage({super.key});
+
+  @override
+  State<StatusPage> createState() => _StatusPageState();
+}
+
+class _StatusPageState extends State<StatusPage> {
+  String statusMessage = "Your drink is being prepared...";
+  bool isDone = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // ✅ Simulate status change after 3 seconds
+    Timer(const Duration(seconds: 3), () {
+      setState(() {
+        statusMessage = "✅ Order Completed! Enjoy your drink!";
+        isDone = true;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightBlue.shade50,
+      backgroundColor: const Color(0xFFFFE4F2), // Light pink background
       appBar: AppBar(
-        backgroundColor: Colors.deepOrange.shade700,
-        title: const Text("Order Status"),
+        backgroundColor: const Color(0xFF001F54), // Deep blue app bar
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
+          "Order Status",
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
         elevation: 4,
       ),
@@ -19,32 +45,42 @@ class StatusPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.local_drink, size: 80, color: Colors.orange),
-              const SizedBox(height: 16),
+              // ✅ Animated GIF or Image
+              SizedBox(
+                width: 150,
+                height: 150,
+                child: Image.asset(
+                  isDone
+                      ? "assets/images/original.gif"      // ✅ Success GIF
+                      : "assets/images/original.gif",   // ✅ Preparing GIF (you can use different GIFs if you want)
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(height: 20),
+
               Text(
-                "Your order is being prepared!",
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.orange.shade800,
-                      fontWeight: FontWeight.bold,
-                    ),
+                statusMessage,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: isDone ? Colors.green : const Color(0xFF4B0082),
+                ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
-              const Text(
-                "Please wait while we process your slushie order.\nEstimated time: 2 minutes.",
-                textAlign: TextAlign.center,
-              ),
+
               const SizedBox(height: 30),
+
               ElevatedButton.icon(
-                icon: const Icon(Icons.home),
-                label: const Text("Back"),
+                icon: const Icon(Icons.home, color: Colors.white),
+                label: const Text("Back to Home"),
                 onPressed: () {
                   Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green.shade700,
+                  backgroundColor: Colors.pinkAccent,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),

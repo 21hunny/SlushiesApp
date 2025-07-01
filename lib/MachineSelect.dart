@@ -5,10 +5,18 @@ class MachineSelectPage extends StatelessWidget {
 
   final List<String> machines = const [
     "Galle - Machine 01",
-    "Karapitiya - Machine 02",
+    "Weligama - Machine 02",
     "Unawatuna - Machine 03",
     "Hikkaduwa - Machine 04",
     "Fort - Machine 05",
+  ];
+
+  final List<String> machineImages = const [
+    "assets/images/galle.jpeg", // Galle
+    "assets/images/weligama.jpeg", // Weligama
+    "assets/images/Unawatuna.jpg", // Unawatuna
+    "assets/images/hikkaduwa.jpg", // Hikkaduwa
+    "assets/images/fort.jpg", // Fort
   ];
 
   @override
@@ -16,10 +24,16 @@ class MachineSelectPage extends StatelessWidget {
     final selectedDrink = ModalRoute.of(context)!.settings.arguments as String;
 
     return Scaffold(
-      backgroundColor: Colors.lightBlue.shade50,
+      backgroundColor: const Color(0xFFFFE4F2), // Light pink background
       appBar: AppBar(
-        backgroundColor: Colors.orange.shade700,
-        title: const Text("Select Machine"),
+        backgroundColor: const Color(0xFF001F54), // Deep blue app bar
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ), // ✅ White back arrow
+        title: const Text(
+          "Select Machine",
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
         elevation: 4,
       ),
@@ -27,21 +41,21 @@ class MachineSelectPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Drink selected heading
-            Row(
-              children: [
-                const Icon(Icons.local_drink, color: Colors.orange, size: 30),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    "Selected Drink: $selectedDrink",
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange.shade800,
-                        ),
-                  ),
+            // Selected drink heading (without icon)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.pink[100],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                "Selected Drink: $selectedDrink",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF4B0082), // Deep purple text
+                  fontSize: 16,
                 ),
-              ],
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -49,21 +63,40 @@ class MachineSelectPage extends StatelessWidget {
             Expanded(
               child: ListView.separated(
                 itemCount: machines.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   return Card(
-                    elevation: 4,
+                    color: Colors.white,
+                    elevation: 6,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: ListTile(
-                      leading: const Icon(Icons.precision_manufacturing, color: Colors.orange),
+                      contentPadding: const EdgeInsets.all(12),
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.asset(
+                          machineImages[index],
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                       title: Text(
                         machines[index],
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF001F54), // Dark blue title
+                        ),
                       ),
-                      subtitle: const Text("Available"),
-                      trailing: const Icon(Icons.chevron_right),
+                      subtitle: const Text(
+                        "Available",
+                        style: TextStyle(color: Colors.pinkAccent),
+                      ),
+                      trailing: const Icon(
+                        Icons.chevron_right,
+                        color: Color(0xFF001F54),
+                      ),
                       onTap: () {
                         Navigator.pushNamed(
                           context,
