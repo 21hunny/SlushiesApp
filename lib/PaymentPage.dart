@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PaymentPage extends StatefulWidget {
   const PaymentPage({super.key});
@@ -12,20 +14,51 @@ class _PaymentPageState extends State<PaymentPage> {
   final TextEditingController _cardNumberController = TextEditingController();
   final TextEditingController _expiryController = TextEditingController();
   final TextEditingController _cvvController = TextEditingController();
+
   String? _selectedCardType;
-  String machine = "Unknown Machine";
+  String juiceType = "";
+  bool addSugar = true;
+  bool addWater = true;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // ✅ Get machine name from previous page (ConfirmPage)
-    final args = ModalRoute.of(context)!.settings.arguments;
-    if (args != null && args is String) {
-      machine = args;
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    if (args != null) {
+      juiceType = args['juice'] ?? "";
+      addSugar = args['addSugar'] ?? true;
+      addWater = args['addWater'] ?? true;
     }
   }
 
-  void _processPayment() {
+  Future<void> _saveOrderToFirestore() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final digitsOnly = _cardNumberController.text.replaceAll(RegExp(r'\D'), '');
+    final last4 = digitsOnly.length >= 4 ? digitsOnly.substring(digitsOnly.length - 4) : digitsOnly;
+
+    try {
+      await FirebaseFirestore.instance.collection('orders').add({
+        'userId': user.uid,
+        'juiceType': juiceType,
+        'addSugar': addSugar,
+        'addWater': addWater,
+        'paymentStatus': 'Success',
+        'cardDetails': {
+          'cardType': _selectedCardType ?? '',
+          'last4Digits': last4,
+        },
+        'timestamp': FieldValue.serverTimestamp(),
+        'localTimestamp': Timestamp.now(), // Important to avoid disappearing orders
+      });
+    } catch (e) {
+      print("Failed to save order: $e");
+    }
+  }
+
+  void _processPayment() async {
     if (_selectedCardType == null ||
         _cardNumberController.text.isEmpty ||
         _expiryController.text.isEmpty ||
@@ -36,35 +69,24 @@ class _PaymentPageState extends State<PaymentPage> {
       return;
     }
 
-    // ✅ Navigate to StatusPage, passing machine name
+    await _saveOrderToFirestore();
+
     Navigator.pushNamedAndRemoveUntil(
       context,
-      '/status',
+      '/status',  // your order success/status page route
       (route) => false,
-      arguments: machine,
     );
   }
 
   int _getCardMaxLength() {
-    if (_selectedCardType == 'Amex') {
-      return 15 + 3; // 15 digits + spaces
-    } else {
-      return 16 + 3; // 16 digits + spaces
-    }
+    return _selectedCardType == 'Amex' ? 15 + 3 : 16 + 3;
   }
 
   String _formatCardNumber(String input) {
     String cleaned = input.replaceAll(RegExp(r'\D'), '');
     List<String> parts = [];
-
-    if (_selectedCardType == 'Amex') {
-      for (int i = 0; i < cleaned.length; i += 4) {
-        parts.add(cleaned.substring(i, i + (i + 4 <= cleaned.length ? 4 : cleaned.length - i)));
-      }
-    } else {
-      for (int i = 0; i < cleaned.length; i += 4) {
-        parts.add(cleaned.substring(i, i + (i + 4 <= cleaned.length ? 4 : cleaned.length - i)));
-      }
+    for (int i = 0; i < cleaned.length; i += 4) {
+      parts.add(cleaned.substring(i, i + (i + 4 <= cleaned.length ? 4 : cleaned.length - i)));
     }
     return parts.join(' ');
   }
@@ -94,6 +116,20 @@ class _PaymentPageState extends State<PaymentPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (juiceType.isNotEmpty) ...[
+              Text(
+                "Selected Juice: $juiceType",
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF4B0082),
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text("Add Sugar: ${addSugar ? 'Yes' : 'No'}"),
+              Text("Add Water: ${addWater ? 'Yes' : 'No'}"),
+              const SizedBox(height: 20),
+            ],
             const Text(
               "Choose Card Type",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF4B0082)),
@@ -118,17 +154,13 @@ class _PaymentPageState extends State<PaymentPage> {
               },
             ),
             const SizedBox(height: 20),
-
-            // Card Number
             TextFormField(
               controller: _cardNumberController,
               keyboardType: TextInputType.number,
               maxLength: _getCardMaxLength(),
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(
-                  _selectedCardType == 'Amex' ? 15 : 16,
-                ),
+                LengthLimitingTextInputFormatter(_selectedCardType == 'Amex' ? 15 : 16),
               ],
               onChanged: _onCardNumberChanged,
               decoration: InputDecoration(
@@ -141,8 +173,6 @@ class _PaymentPageState extends State<PaymentPage> {
               ),
             ),
             const SizedBox(height: 20),
-
-            // Expiry Date
             TextFormField(
               controller: _expiryController,
               keyboardType: TextInputType.datetime,
@@ -155,8 +185,6 @@ class _PaymentPageState extends State<PaymentPage> {
               ),
             ),
             const SizedBox(height: 20),
-
-            // CVV
             TextFormField(
               controller: _cvvController,
               keyboardType: TextInputType.number,
@@ -172,7 +200,6 @@ class _PaymentPageState extends State<PaymentPage> {
               ),
             ),
             const SizedBox(height: 30),
-
             ElevatedButton.icon(
               onPressed: _processPayment,
               icon: const Icon(Icons.payment, color: Colors.white),

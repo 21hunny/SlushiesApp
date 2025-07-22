@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 
-class ConfirmPage extends StatelessWidget {
+class ConfirmPage extends StatefulWidget {
   const ConfirmPage({super.key});
 
   @override
+  State<ConfirmPage> createState() => _ConfirmPageState();
+}
+
+class _ConfirmPageState extends State<ConfirmPage> {
+  bool addSugar = true;
+  bool addWater = true;
+
+  @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final Map<String, dynamic> args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final String drink = args["drink"];
     final String machine = args["machine"];
 
-    // Example image based on drink name
     String getDrinkImage(String drinkName) {
       if (drinkName.contains("Mango")) {
         return "assets/images/mango.jpg";
@@ -18,26 +26,22 @@ class ConfirmPage extends StatelessWidget {
       } else if (drinkName.contains("Strawberry")) {
         return "assets/images/strawberry.jpg";
       } else {
-        return "assets/images/default_drink.jpg"; // Fallback image
+        return "assets/images/default_drink.jpg";
       }
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFE4F2), // Light pink background
+      backgroundColor: const Color(0xFFFFE4F2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF001F54), // Deep blue AppBar
-        iconTheme: const IconThemeData(color: Colors.white), // White back arrow
-        title: const Text(
-          "Confirm Order",
-          style: TextStyle(color: Colors.white),
-        ),
+        backgroundColor: const Color(0xFF001F54),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text("Confirm Order", style: TextStyle(color: Colors.white)),
         centerTitle: true,
         elevation: 4,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Drink + Machine Info Card
@@ -48,7 +52,6 @@ class ConfirmPage extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
@@ -60,12 +63,12 @@ class ConfirmPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Text(
+                    const Text(
                       "You're about to order:",
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF4B0082), // Deep purple text
+                        color: Color(0xFF4B0082),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -83,13 +86,49 @@ class ConfirmPage extends StatelessWidget {
               ),
             ),
 
+            const SizedBox(height: 24),
+
+            // Sugar Toggle
+            SwitchListTile(
+              value: addSugar,
+              onChanged: (val) {
+                setState(() {
+                  addSugar = val;
+                });
+              },
+              title: const Text("Add Sugar"),
+              activeColor: Colors.pinkAccent,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+            ),
+
+            // Water Toggle
+            SwitchListTile(
+              value: addWater,
+              onChanged: (val) {
+                setState(() {
+                  addWater = val;
+                });
+              },
+              title: const Text("Add Water"),
+              activeColor: Colors.pinkAccent,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+            ),
+
             const SizedBox(height: 30),
 
             // Confirm Button
             ElevatedButton.icon(
               onPressed: () {
-                Navigator.pushNamed(context, '/payment');
-
+                Navigator.pushNamed(
+                  context,
+                  '/payment',
+                  arguments: {
+                    'juice': drink,
+                    'addSugar': addSugar,
+                    'addWater': addWater,
+                    'machine': machine,
+                  },
+                );
               },
               icon: const Icon(Icons.check_circle_outline, color: Colors.white),
               label: const Text("Confirm & Start"),

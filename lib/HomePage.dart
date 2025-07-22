@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -53,20 +54,25 @@ class _HomePageState extends State<HomePage> {
     Navigator.pushNamed(context, "/machines", arguments: drinkName);
   }
 
+  Future<void> logout() async {
+    await FirebaseAuth.instance.signOut();
+    Future.microtask(() {
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFE4F2),
       appBar: AppBar(
         backgroundColor: const Color(0xFF001F54),
-        
         title: const Text(
           'Slushies Menu 🍹',
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
-
       ),
 
       drawer: Drawer(
@@ -113,6 +119,12 @@ class _HomePageState extends State<HomePage> {
                 Navigator.pop(context);
                 Navigator.pushNamed(context, '/orderHistory', arguments: orderHistory);
               },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.redAccent),
+              title: const Text('Logout'),
+              onTap: logout,
             ),
           ],
         ),
